@@ -2,19 +2,21 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # Load environment variables from .env file
-
-import requests
-from datetime import datetime
-import time
-import itertools
-
-# --- API keys ---
-GITHUB_TOKEN_1 = os.getenv("GITHUB_TOKEN_1")
-GITHUB_TOKEN_2 = os.getenv("GITHUB_TOKEN_2")
-SERP_API_KEY = os.getenv("SERP_API_KEY", "")
+try:
+    import streamlit as st
+    # Try loading from Streamlit secrets (works on cloud)
+    GITHUB_TOKEN_1 = st.secrets.get("GITHUB_TOKEN_1", None)
+    GITHUB_TOKEN_2 = st.secrets.get("GITHUB_TOKEN_2", None)
+except ImportError:
+    # If Streamlit not installed or not running inside Streamlit, fallback to env vars
+    GITHUB_TOKEN_1 = os.getenv("GITHUB_TOKEN_1")
+    GITHUB_TOKEN_2 = os.getenv("GITHUB_TOKEN_2")
 
 GITHUB_TOKENS = [token for token in [GITHUB_TOKEN_1, GITHUB_TOKEN_2] if token]
+if not GITHUB_TOKENS:
+    raise RuntimeError("No GitHub tokens found! Set them in environment or Streamlit secrets.")
+
+import itertools
 token_pool = itertools.cycle(GITHUB_TOKENS)
 
 # GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"  # Gemini API key removed
