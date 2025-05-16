@@ -110,21 +110,21 @@ def process_user(user, keyword_list):
     }
 
 # 🔁 Modified: Accept multiple domain-keyword combos
-def search_github_users(domain_keyword_pairs, max_users=30):
+def search_github_users(domain, keywords="", max_users=50):
+    keyword_list = [kw.strip().lower() for kw in keywords.split(",") if kw.strip()]
+    domain_variants = generate_variants(domain)
     all_users = {}
 
-    for domain, keywords in domain_keyword_pairs:
-        keyword_list = [kw.strip().lower() for kw in keywords.split(",") if kw.strip()]
-        domain_variants = generate_variants(domain)
-
-        for variant in domain_variants:
+    for variant in domain_variants:
+        for page in range(1, 4):  # Fetch up to 3 pages
             query = f"{variant} in:bio"
-            url = f"https://api.github.com/search/users?q={query}&per_page={max_users}"
+            url = f"https://api.github.com/search/users?q={query}&per_page=30&page={page}"
             response = safe_get(url)
             if not response:
                 continue
 
             users = response.json().get("items", [])
+            print(f"[DEBUG] Variant '{variant}' Page {page}: Found {len(users)} users")
 
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(process_user, user, keyword_list) for user in users]
@@ -133,8 +133,11 @@ def search_github_users(domain_keyword_pairs, max_users=30):
                     if user_result and user_result["name"] not in all_users:
                         all_users[user_result["name"]] = user_result
 
+            # If we already have enough users, break early
             if len(all_users) >= max_users:
                 break
+        if len(all_users) >= max_users:
+            break
 
     results = list(all_users.values())
     group1 = sorted([r for r in results if r["experience_years"] >= 10], key=lambda x: -x["confidence_score"])
@@ -149,3 +152,4 @@ def search_github_users(domain_keyword_pairs, max_users=30):
         "strong_but_less_than_10": group2,
         "all_candidates": group3
     }
+
