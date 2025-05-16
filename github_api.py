@@ -1,4 +1,3 @@
-# optimized_github_api.py
 from dotenv import load_dotenv
 import os
 import requests
@@ -28,6 +27,7 @@ def get_headers():
     token = next(token_pool)
     return {"Authorization": f"token {token}"}
 
+
 def safe_get(url):
     headers = get_headers()
     try:
@@ -48,6 +48,7 @@ def safe_get(url):
         print(f"GitHub API Error {response.status_code}: {response.text}")
         return None
 
+
 def calculate_experience_years(created_at):
     try:
         created_date = datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
@@ -55,9 +56,11 @@ def calculate_experience_years(created_at):
     except Exception:
         return 0
 
+
 def compute_confidence(years, repo_count, keyword_matches):
     base = min(100, years * 6 + repo_count * 2 + keyword_matches * 5)
     return round(min(base, 100))
+
 
 def generate_variants(term):
     base = term.lower().replace(" ", "")
@@ -68,6 +71,7 @@ def generate_variants(term):
     if "machine" in term.lower():
         variants += ["ml", "ML", "Ml"]
     return variants
+
 
 def process_user(user, keyword_list):
     username = user["login"]
@@ -111,29 +115,32 @@ def process_user(user, keyword_list):
         "explanation": explanation
     }
 
-def search_github_users(domain, keywords="", max_users=30):
-    keyword_list = [kw.strip().lower() for kw in keywords.split(",") if kw.strip()]
-    domain_variants = generate_variants(domain)
+
+def search_github_users(domain_keyword_pairs, max_users=30):
     all_users = {}
 
-    for variant in domain_variants:
-        query = f"{variant} in:bio"
-        url = f"https://api.github.com/search/users?q={query}&per_page={max_users}"
-        response = safe_get(url)
-        if not response:
-            continue
+    for domain, keywords in domain_keyword_pairs:
+        keyword_list = [kw.strip().lower() for kw in keywords.split(",") if kw.strip()]
+        domain_variants = generate_variants(domain)
 
-        users = response.json().get("items", [])
+        for variant in domain_variants:
+            query = f"{variant} in:bio"
+            url = f"https://api.github.com/search/users?q={query}&per_page={max_users}"
+            response = safe_get(url)
+            if not response:
+                continue
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [executor.submit(process_user, user, keyword_list) for user in users]
-            for future in concurrent.futures.as_completed(futures):
-                user_result = future.result()
-                if user_result and user_result["name"] not in all_users:
-                    all_users[user_result["name"]] = user_result
+            users = response.json().get("items", [])
 
-        if len(all_users) >= max_users:
-            break
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = [executor.submit(process_user, user, keyword_list) for user in users]
+                for future in concurrent.futures.as_completed(futures):
+                    user_result = future.result()
+                    if user_result and user_result["name"] not in all_users:
+                        all_users[user_result["name"]] = user_result
+
+            if len(all_users) >= max_users:
+                break
 
     results = list(all_users.values())
     group1 = sorted([r for r in results if r["experience_years"] >= 10], key=lambda x: -x["confidence_score"])
