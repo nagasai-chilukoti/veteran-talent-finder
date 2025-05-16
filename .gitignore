@@ -1,0 +1,57 @@
+# Python-specific ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+dist/
+build/
+sdist/
+
+# Virtual environment
+venv/
+*.env  # If you use .env files for local development secrets
+
+# OS-specific files (common on macOS)
+.DS_Store
+.Trashes
+
+# Log files
+*.log
+*.out
+
+# Temporary files
+*.tmp
+*.swp
+*~
+*.bak
+*.orig
+
+# Editor-specific files and directories
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Data files you don't want to track (based on your previous messages)
+domains.txt
+github api.txt
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+#env
+
+.env
+
+# Other common ignores (you might not need all of these)
+node_modules/
+yarn.lock
+package-lock.json
+target/
+out/
+bin/
+obj/
+*.csproj.user
+*.sln.docstates
+*.suo
+*.userprefs

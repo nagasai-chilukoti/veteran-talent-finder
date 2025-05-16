@@ -1,0 +1,7 @@
+streamlit
+pandas
+requests
+serpapi-python
+# google-generativeai  # Add if you re-enable Gemini
+# aiohttp
+# asyncio
