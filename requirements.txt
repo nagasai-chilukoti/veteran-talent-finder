@@ -1,7 +1,7 @@
 streamlit
 pandas
 requests
-serpapi-python
+serpapi
 # google-generativeai  # Add if you re-enable Gemini
 # aiohttp
 # asyncio
