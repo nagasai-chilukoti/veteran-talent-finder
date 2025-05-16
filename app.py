@@ -20,7 +20,7 @@ if st.button("🔍 Find Experts"):
         st.warning("Please enter a domain.")
     else:
         with st.spinner("Searching GitHub for experienced professionals..."):
-            results = search_github_users(domain, keywords)
+            results = search_github_users([(domain, keywords)])
             if results and not results.get("error"):
                 st.session_state.results = results
             else:
