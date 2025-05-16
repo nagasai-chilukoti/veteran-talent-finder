@@ -22,11 +22,9 @@ if not GITHUB_TOKENS:
 
 token_pool = itertools.cycle(GITHUB_TOKENS)
 
-
 def get_headers():
     token = next(token_pool)
     return {"Authorization": f"token {token}"}
-
 
 def safe_get(url):
     headers = get_headers()
@@ -48,7 +46,6 @@ def safe_get(url):
         print(f"GitHub API Error {response.status_code}: {response.text}")
         return None
 
-
 def calculate_experience_years(created_at):
     try:
         created_date = datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
@@ -56,11 +53,9 @@ def calculate_experience_years(created_at):
     except Exception:
         return 0
 
-
 def compute_confidence(years, repo_count, keyword_matches):
     base = min(100, years * 6 + repo_count * 2 + keyword_matches * 5)
     return round(min(base, 100))
-
 
 def generate_variants(term):
     base = term.lower().replace(" ", "")
@@ -71,7 +66,6 @@ def generate_variants(term):
     if "machine" in term.lower():
         variants += ["ml", "ML", "Ml"]
     return variants
-
 
 def process_user(user, keyword_list):
     username = user["login"]
@@ -115,7 +109,7 @@ def process_user(user, keyword_list):
         "explanation": explanation
     }
 
-
+# 🔁 Modified: Accept multiple domain-keyword combos
 def search_github_users(domain_keyword_pairs, max_users=30):
     all_users = {}
 
