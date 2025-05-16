@@ -4,13 +4,15 @@ import os
 
 try:
     import streamlit as st
-    # Try loading from Streamlit secrets (works on cloud)
+    # Load tokens from Streamlit secrets (Cloud)
     GITHUB_TOKEN_1 = st.secrets.get("GITHUB_TOKEN_1", None)
     GITHUB_TOKEN_2 = st.secrets.get("GITHUB_TOKEN_2", None)
+    SERP_API_KEY = st.secrets.get("SERP_API_KEY", "")
 except ImportError:
-    # If Streamlit not installed or not running inside Streamlit, fallback to env vars
+    # Fallback to environment variables (local)
     GITHUB_TOKEN_1 = os.getenv("GITHUB_TOKEN_1")
     GITHUB_TOKEN_2 = os.getenv("GITHUB_TOKEN_2")
+    SERP_API_KEY = os.getenv("SERP_API_KEY", "")
 
 GITHUB_TOKENS = [token for token in [GITHUB_TOKEN_1, GITHUB_TOKEN_2] if token]
 if not GITHUB_TOKENS:
@@ -18,6 +20,7 @@ if not GITHUB_TOKENS:
 
 import itertools
 token_pool = itertools.cycle(GITHUB_TOKENS)
+
 
 # GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"  # Gemini API key removed
 # GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent" # Gemini URL removed
